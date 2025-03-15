@@ -143,7 +143,7 @@ self.addEventListener('activate', async (event) => {
       
       // For each group, keep only the newest version
       for (const [baseName, files] of Object.entries(fileGroups)) {
-        if (files.length > 1) {
+        if (files.length >= 1) {
           // Sort by querystring version or filename hash (newer = higher)
           files.sort((a, b) => {
             const versionA = a.url.search.match(/v=([^&]+)/) || a.url.pathname.match(/\.([^\.]+)\.js/);

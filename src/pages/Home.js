@@ -402,7 +402,7 @@ export default function Home() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6 }}
             >
-              erdtfgvhbjn Simpplrerdtfgvhbjn Simpplrerdtfgvhbjn Simpplrerdtfgvhbjn Simpplrerdtfgvhbjn Simpplr
+              Simpplr Simpplr Simpplr Simpplr
             </motion.h1>
 
             <motion.p
