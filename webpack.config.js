@@ -3,7 +3,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
-const git = require("git-rev-sync");
 
 module.exports = {
   mode: "production",
@@ -140,7 +139,7 @@ module.exports = {
           from: 'public',
           to: '',
           globOptions: {
-            ignore: ['**/index.html'], // We already process index.html with HtmlWebpackPlugin
+            ignore: ['**/index.html'],
           },
         },
       ],
@@ -148,16 +147,14 @@ module.exports = {
     new InjectManifest({
       swSrc: './src/service-worker.js',
       swDest: 'service-worker.js',
-      maximumFileSizeToCacheInBytes: 10000000, // Increased to handle larger files
+      maximumFileSizeToCacheInBytes: 1000000000,
       
-      // Define which files to include and exclude from precaching
       exclude: [
         /\.map$/,
         /manifest\.json$/,
         /\.htaccess$/,
       ],
       
-      // Include all relevant files for caching
       include: [
         /\.js$/,
         /\.css$/,

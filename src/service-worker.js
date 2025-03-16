@@ -44,14 +44,12 @@ self.addEventListener('message', async (event) => {
       break;
       
     case 'GET_CACHE_LOGS':
-      // Respond with all cached logs
       if (event.ports && event.ports[0]) {
         event.ports[0].postMessage({
           type: 'CACHE_LOGS_RESPONSE',
           payload: cacheLogStore.logs
         });
       } else {
-        // If no MessageChannel, send to all clients
         const client = await self.clients.get(event.source.id);
         if (client) {
           client.postMessage({
@@ -74,7 +72,6 @@ self.addEventListener('message', async (event) => {
           logCacheOperation('ALL_CACHES_CLEARED', { count: cacheNames.length });
         }
         
-        // Respond to the client
         if (event.ports && event.ports[0]) {
           event.ports[0].postMessage({ success: true });
         }
@@ -88,10 +85,7 @@ self.addEventListener('message', async (event) => {
   }
 });
 
-// Take control of all clients as soon as the service worker activates
 clientsClaim();
-
-// Set cache name details
 setCacheNameDetails({
   prefix: 'app',
   suffix: 'v1',
@@ -99,21 +93,14 @@ setCacheNameDetails({
   runtime: 'run-time',
 });
 
-// Clean up outdated caches
 cleanupOutdatedCaches();
 
-// Handle version changes for main.js and other important files
 self.addEventListener('activate', async (event) => {
-  // Log activation
   logCacheOperation('ACTIVATE', 'Service worker activated');
-  
-  // Clean up old caches when a new service worker activates
-  event.waitUntil(async function() {
-    // Get all cache names
+    event.waitUntil(async function() {
     const cacheNames = await caches.keys();
     logCacheOperation('CACHE_CLEANUP_START', { cacheCount: cacheNames.length });
     
-    // Get all cache entries for javascript files
     for (const cacheName of cacheNames) {
       const cache = await caches.open(cacheName);
       const requests = await cache.keys();
@@ -123,12 +110,10 @@ self.addEventListener('activate', async (event) => {
         entryCount: requests.length 
       });
       
-      // Group requests by base filename (without version hash)
       const fileGroups = {};
       
       for (const request of requests) {
         const url = new URL(request.url);
-        // Match files like main.js?v=123456 or chunks/main.123456.js
         const mainJsMatch = url.pathname.match(/\/assets\/js\/([^\/]+)\.js/) || 
                            url.pathname.match(/\/assets\/js\/chunks\/([^\/]+)\.[^\.]+\.js/);
         
@@ -141,10 +126,8 @@ self.addEventListener('activate', async (event) => {
         }
       }
       
-      // For each group, keep only the newest version
       for (const [baseName, files] of Object.entries(fileGroups)) {
-        if (files.length >= 1) {
-          // Sort by querystring version or filename hash (newer = higher)
+        if (files.length > 1) {
           files.sort((a, b) => {
             const versionA = a.url.search.match(/v=([^&]+)/) || a.url.pathname.match(/\.([^\.]+)\.js/);
             const versionB = b.url.search.match(/v=([^&]+)/) || b.url.pathname.match(/\.([^\.]+)\.js/);
@@ -155,7 +138,6 @@ self.addEventListener('activate', async (event) => {
             return 0;
           });
           
-          // Keep the newest version (first after sorting) and delete the rest
           for (let i = 0; i < files.length; i++) {
             await cache.delete(files[i].request);
             logCacheOperation('DELETE_OUTDATED_FILE', {
@@ -174,7 +156,6 @@ self.addEventListener('activate', async (event) => {
   }());
 });
 
-// Log for each cache hit/miss
 const createStrategyWithLogging = (strategy, strategyName) => {
   return {
     async handle(options) {
@@ -205,15 +186,13 @@ const createStrategyWithLogging = (strategy, strategyName) => {
   };
 };
 
-// Precache and route setup - this line will be replaced with the precache manifest
-// during the build process by the InjectManifest plugin
+
 self.addEventListener('install', (event) => {
   logCacheOperation('INSTALL', 'Service worker installed');
 });
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Cache for all main app shell files
 registerRoute(
   /\/$/,
   createStrategyWithLogging(
@@ -222,7 +201,7 @@ registerRoute(
       plugins: [
         new ExpirationPlugin({
           maxEntries: 10,
-          maxAgeSeconds: 60 * 24 * 60 * 60 // 60 days
+          maxAgeSeconds: 60 * 24 * 60 * 60 
         }),
         new CacheableResponsePlugin({
           statuses: [0, 200]
@@ -233,7 +212,6 @@ registerRoute(
   )
 );
 
-// Cache for CSS, JS, and other static resources
 registerRoute(
   ({ request }) =>
     request.destination === "script" ||
@@ -244,8 +222,8 @@ registerRoute(
       plugins: [
         new ExpirationPlugin({
           maxEntries: 100,
-          maxAgeSeconds: 60 * 24 * 60 * 60, // 60 days
-          purgeOnQuotaError: true // Delete if storage quota is exceeded
+          maxAgeSeconds: 60 * 24 * 60 * 60, 
+          purgeOnQuotaError: true
         }),
         new CacheableResponsePlugin({
           statuses: [0, 200]
@@ -287,7 +265,7 @@ registerRoute(
       plugins: [
         new ExpirationPlugin({
           maxEntries: 200,
-          maxAgeSeconds: 60 * 24 * 60 * 60, // 60 days
+          maxAgeSeconds: 60 * 24 * 60 * 60,
           purgeOnQuotaError: true
         }),
         new CacheableResponsePlugin({
