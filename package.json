@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "serve -s dist",
+    "start": "webpack serve --open",
     "build": "webpack --mode production"
   },
   "keywords": [],
