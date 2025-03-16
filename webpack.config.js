@@ -12,7 +12,10 @@ module.exports = {
     filename: "assets/js/[name].js?v=[chunkhash]",
     chunkFilename: "assets/js/chunks/[name].[contenthash].js",
     hashDigestLength: 6,
-    publicPath: "/",
+    publicPath: "./"
+  },
+  devServer: {
+    historyApiFallback: true,
   },
   performance: {
     hints: "warning",
