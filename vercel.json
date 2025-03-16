@@ -1,8 +1,5 @@
 {
     "version": 2,
-    "builds": [
-      { "src": "webpack.config.js", "use": "@vercel/static-build", "config": { "outputDirectory": "dist" } }
-    ],
     "routes": [
       { "src": "/service-worker.js", "headers": { "Cache-Control": "no-cache" } },
       { "src": "/(.*)", "dest": "/index.html" }
